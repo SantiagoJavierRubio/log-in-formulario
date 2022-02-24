@@ -1,0 +1,107 @@
+<section>
+    <h1>Ingrese un producto</h1>
+
+    <form method="POST" action="/productos" onsubmit="return sendNewProduct()" class="mt-4">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" name="title" id="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" step="0.01" min=0 class="form-control" name="price" id="price" required>
+        </div>
+        <div class="mb-3">
+            <label for="thumbnail" class="form-label">Thumbnail</label>
+            <input type="text" class="form-control" name="thumbnail" id="thumbnail" required>
+        </div>
+        <button class="btn btn-primary">Submit</button>
+    </form>
+    <div id="product-list">
+        <table class="table table-dark table-striped mt-4">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Foto</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <script>
+            function sendNewProduct(){
+                socket.emit('newProduct')
+            }
+            socket.on('productList', products => {
+            if(products.length > 0){
+                let newList = ''
+                products.forEach(product => {
+                    newList += `
+                        <tr>
+                            <th scope="row">${product.id}</th>
+                            <td>${product.title}</td>
+                            <td>$${product.price}</td>
+                            <td>
+                                <img src="${product.thumbnail}" alt="thumbnail" class="img-thumbnail mx-auto d-block">
+                            </td>
+                        </tr>
+                    `
+                })
+                document.querySelector('tbody').innerHTML = newList
+            }
+        })
+        </script>
+    </div>
+</section>
+<section id="message-section">
+    <h1>Centro de mensajes</h1>
+    <label for="email" id="email-lbl"></label>
+    <input type="email" name="email" id="email" placeholder="Email">
+    <div id="message-board"></div>
+    <div>
+        <label for="message" id="message-lbl"></label>
+        <input type="text" name="message" id="message" placeholder="Escribe tu mensaje" >
+        <button onclick="sendMessage()" class="btn btn-secondary">Enviar</button>
+    </div>
+    <script>
+        function sendMessage(){
+            let email = document.querySelector('#email').value
+            let message = document.querySelector('#message').value
+
+            if(email == ''){
+                return document.querySelector('#email-lbl').innerHTML = '* campo requerido'
+            } else document.querySelector('#email-lbl').innerHTML = ''
+
+            if(message == ''){
+                return document.querySelector('#message-lbl').innerHTML = '* campo requerido'
+            } else document.querySelector('#message-lbl').innerHTML = ''
+
+            socket.emit('userMessage', {email, message})
+        }
+
+        socket.on('messageBoard', mensajes => {
+            let board = ''
+            mensajes.forEach(msg => {
+                board += `
+                    <p class="msg">
+                        <span class="from">${msg.email}</span>
+                        <span class="date">${msg.date}: </span>
+                        <span class="content">${msg.message}</span>
+                    </p>
+                `
+            })
+            document.querySelector('#message-board').innerHTML = board
+        })
+        socket.on('newMessage', msg => {
+            let newMsg = document.createElement('p')
+            newMsg.classList.add("msg")
+            newMsg.innerHTML = `
+                        <span class="from">${msg.email}</span>
+                        <span class="date">${msg.date}: </span>
+                        <span class="content">${msg.message}</span>
+                    `
+            document.querySelector('#message-board').appendChild(newMsg)
+        })
+    </script>
+</section>

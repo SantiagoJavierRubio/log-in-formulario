@@ -23,11 +23,8 @@ export default class Contenedor {
     async save (obj) {
         try {
             const inserted = await this.knex(this.tableName).insert(obj)
-            if(inserted){
-                return console.log('Entry saved')
-            } else {
-                throw new Error('Entry not saved')
-            }
+            if(!inserted) throw new Error('Entry not saved')
+            return true
         } catch (err) {
             console.error(err)
             return null

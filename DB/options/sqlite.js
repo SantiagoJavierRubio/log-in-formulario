@@ -1,5 +1,4 @@
 import knex from "knex"
-// Workaround porque no funcionaba __dirname al trabajar en módulos (creo)
 
 const options = {
     client: 'sqlite3',
