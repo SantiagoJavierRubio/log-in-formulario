@@ -1,0 +1,32 @@
+{
+  "name": "PrimeraDB",
+  "version": "1.0.0",
+  "description": "Desafío entregable para el curso de backend de Coderhouse",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cabrerarodrigo/primera-base-de-datos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cabrerarodrigo/primera-base-de-datos/issues"
+  },
+  "homepage": "https://github.com/cabrerarodrigo/primera-base-de-datos#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "knex": "^1.0.3",
+    "mysql": "^2.18.1",
+    "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
