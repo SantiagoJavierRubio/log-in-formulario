@@ -9,7 +9,7 @@ $ git clone https://github.com/cabrerarodrigo/primera-base-de-datos.git
 # Instalar dependencias
 $ npm install
 
-# Correr el programa (utiliza el puerto 8080)
+# Correr el programa (utiliza el puerto 5000)
 $ npm run start
 ```
 ```bash
