@@ -1,4 +1,4 @@
-import Contenedor from "./contenedor.js"
+import Contenedor from "./contenedorKnex.js"
 
 const tableStructure = (table) => {
     table.increments('id').primary()
