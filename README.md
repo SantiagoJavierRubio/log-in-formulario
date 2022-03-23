@@ -1,17 +1,16 @@
-# primera-base-de-datos
+# Mocks y normalización
 Desafío entregable para el curso de backend de Coderhouse
 
 ## Para probar el código:
 
 ```bash
 # Clonar el repositorio
-$ git clone https://github.com/cabrerarodrigo/primera-base-de-datos.git
+$ git clone https://github.com/cabrerarodrigo/mocks_y_normalizacion.git
 
 # Instalar dependencias
 $ npm install
 ```
-- Luego revisar la [configuración de la base de datos mysql](https://github.com/cabrerarodrigo/primera-base-de-datos/blob/main/DB/options/mariadb.js#:~:text=host%3A%20%27localhost%27%2C,database%3A%20%27primeradb%27)
-- Cambiar los valores para que funcionen en su ámbito local.
+
 
 ### Finalmente:
 ```bash

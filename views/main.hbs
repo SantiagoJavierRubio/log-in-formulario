@@ -1,21 +1,5 @@
 <section>
-    <h1>Ingrese un producto</h1>
-
-    <form method="POST" action="/productos" onsubmit="return sendNewProduct()" class="mt-4">
-        <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" name="title" id="title" required>
-        </div>
-        <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input type="number" step="0.01" min=0 class="form-control" name="price" id="price" required>
-        </div>
-        <div class="mb-3">
-            <label for="thumbnail" class="form-label">Thumbnail</label>
-            <input type="text" class="form-control" name="thumbnail" id="thumbnail" required>
-        </div>
-        <button class="btn btn-primary">Submit</button>
-    </form>
+    <h1>Productos</h1>
     <div id="product-list">
         <table class="table table-dark table-striped mt-4">
             <thead>
@@ -30,78 +14,107 @@
             </tbody>
         </table>
         <script>
-            function sendNewProduct(){
-                socket.emit('newProduct')
+            function populate() {
+                fetch('/api/productos-test')
+                    .then(res => res.json())
+                    .then(data => {
+                        let productList = ''
+                        data.forEach(product => {
+                             productList += `
+                                <tr>
+                                    <th scope="row">${product.id}</th>
+                                    <td>${product.nombre}</td>
+                                    <td>$${product.precio}</td>
+                                    <td>
+                                        <img src="${product.foto}" alt="thumbnail" class="img-thumbnail mx-auto d-block" width="100px">
+                                    </td>
+                                </tr>
+                            `
+                        })
+                        document.querySelector('tbody').innerHTML = productList
+                    })
+                    .catch(err => console.log(err))
             }
-            socket.on('productList', products => {
-            if(products.length > 0){
-                let newList = ''
-                products.forEach(product => {
-                    newList += `
-                        <tr>
-                            <th scope="row">${product.id}</th>
-                            <td>${product.title}</td>
-                            <td>$${product.price}</td>
-                            <td>
-                                <img src="${product.thumbnail}" alt="thumbnail" class="img-thumbnail mx-auto d-block">
-                            </td>
-                        </tr>
-                    `
-                })
-                document.querySelector('tbody').innerHTML = newList
-            }
-        })
+            populate()
         </script>
     </div>
 </section>
 <section id="message-section">
     <h1>Centro de mensajes</h1>
+    <h2></h2>
     <label for="email" id="email-lbl"></label>
-    <input type="email" name="email" id="email" placeholder="Email">
-    <div id="message-board"></div>
+    <input type="email" name="email" id="email" placeholder="Email" />
+    <label for="nombre" id="nombre-lbl"></label>
+    <input type="text" name="nombre" id="nombre" placeholder="Nombre" />
+    <label for="apellido" id="apellido-lbl"></label>
+    <input type="text" name="apellido" id="apellido" placeholder="Apellido" />
+    <label for="edad" id="edad-lbl"></label>
+    <input type="number" name="edad" id="edad" placeholder="Edad" min="0" step="1" />
+    <label for="alias" id="alias-lbl"></label>
+    <input type="text" name="alias" id="alias" placeholder="Alias" />
+    <label for="avatar" id="avatar-lbl"></label>
+    <input type="text" name="avatar" id="avatar" placeholder="Avatar" />
+    <div id="message-board">
+    </div>
     <div>
         <label for="message" id="message-lbl"></label>
         <input type="text" name="message" id="message" placeholder="Escribe tu mensaje" >
         <button onclick="sendMessage()" class="btn btn-secondary">Enviar</button>
     </div>
     <script>
+        const authorSchema = new normalizr.schema.Entity('authors')
+        const postSchema = new normalizr.schema.Entity('post', {
+            author: authorSchema
+        })
+        const postsSchema = new normalizr.schema.Entity('posts', { mensajes: [postSchema], authors: [authorSchema] })
+
         function sendMessage(){
-            let email = document.querySelector('#email').value
-            let message = document.querySelector('#message').value
-
-            if(email == ''){
-                return document.querySelector('#email-lbl').innerHTML = '* campo requerido'
-            } else document.querySelector('#email-lbl').innerHTML = ''
-
-            if(message == ''){
-                return document.querySelector('#message-lbl').innerHTML = '* campo requerido'
-            } else document.querySelector('#message-lbl').innerHTML = ''
-
-            socket.emit('userMessage', {email, message})
+            const msj = {
+                email: document.querySelector('#email').value,
+                nombre: document.querySelector('#nombre').value,
+                apellido: document.querySelector('#apellido').value,
+                edad: document.querySelector('#edad').value,
+                alias: document.querySelector('#alias').value,
+                avatar: document.querySelector('#avatar').value,
+                message: document.querySelector('#message').value
+            }
+            for(const [key, val] of Object.entries(msj)){
+                if(val == '' || !val) {
+                    return document.querySelector(`#${key}-lbl`).innerHTML = '* campo requerido'
+                } else {
+                    document.querySelector(`#${key}-lbl`).innerHTML = ''
+                }
+            }
+            socket.emit('userMessage', {
+                author: {
+                    id: msj.email,
+                    nombre: msj.nombre,
+                    apellido: msj.apellido,
+                    edad: msj.edad,
+                    alias: msj.alias,
+                    avatar: msj.avatar
+                },
+                text: msj.message
+            })
         }
 
         socket.on('messageBoard', mensajes => {
+            const mensajesNormalizados = normalizr.denormalize(mensajes.result, postsSchema, mensajes.entities)
+            if(mensajesNormalizados.mensajes.length < 1) return
             let board = ''
-            mensajes.forEach(msg => {
+            mensajesNormalizados.mensajes.forEach(msg => {
                 board += `
                     <p class="msg">
-                        <span class="from">${msg.email}</span>
-                        <span class="date">${msg.date}: </span>
-                        <span class="content">${msg.message}</span>
+                        <span class="from">${msg.author.id}</span>
+                        <span class="name">${msg.author.nombre} ${msg.author.apellido}: </span>
+                        <span class="content">${msg.text}</span>
+                        <img class="thumbnail" src="${msg.author.avatar}" alt="Avatar de ${msg.author.nombre}" />
                     </p>
                 `
             })
             document.querySelector('#message-board').innerHTML = board
-        })
-        socket.on('newMessage', msg => {
-            let newMsg = document.createElement('p')
-            newMsg.classList.add("msg")
-            newMsg.innerHTML = `
-                        <span class="from">${msg.email}</span>
-                        <span class="date">${msg.date}: </span>
-                        <span class="content">${msg.message}</span>
-                    `
-            document.querySelector('#message-board').appendChild(newMsg)
+            const compresion = Math.floor(100 - ((JSON.stringify(mensajes).length / JSON.stringify(mensajesNormalizados).length) *100))
+            document.querySelector('#message-section h2').innerHTML = `Compresión: ${compresion}%`
         })
     </script>
 </section>
