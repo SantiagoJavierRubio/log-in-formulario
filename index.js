@@ -3,6 +3,7 @@ import express from 'express'
 import { Server as HttpServer} from 'http'
 import { Server as IOServer } from 'socket.io'
 import { engine } from 'express-handlebars'
+import session from 'express-session'
 import apiRoutes from './rutas/api.js'
 
 const app = express()
@@ -11,6 +12,13 @@ const io = new IOServer(httpServer)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('./public'))
+
+// Session setup
+app.use(session({
+    secret: 'eunsecreto',
+    resave: true,
+    saveUninitialized: true
+}))
 
 // Workaround porque no funcionaba __dirname al trabajar en módulos (creo)
 import { dirname } from 'path';
@@ -27,9 +35,33 @@ app.set('views', './views')
 app.set('view engine', 'hbs')
 
 // Request handlers
-app.get('/', (req, res) => {
-    res.render('main.hbs')
+const checkUsername = (req, res, next) => {
+    if(!req.session.username) {
+        return res.redirect('/login')
+    }
+    next()
+}
+
+app.get('/', checkUsername, (req, res) => {
+    res.render('main.hbs', {username: req.session.username})
 })
+app.get('/login', (req, res) => {
+    if(req.session.username) {
+        return res.render('main.hbs', {username: req.session.username})
+    }
+    res.render('login.hbs')
+})
+app.post('/login', (req, res) => {
+    if(req.body.nombre){
+        req.session.username = req.body.nombre
+        return res.render('main.hbs', {username: req.session.username})
+    }
+})
+app.get('/logout', checkUsername, (req, res) => {
+    res.render('logout.hbs', {username: req.session.username})
+    req.session.destroy()
+})
+
 app.use('/api', apiRoutes)
 
 // DAOs import

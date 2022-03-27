@@ -11,17 +11,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cabrerarodrigo/mocks_y_normalizacion.git"
+    "url": "https://github.com/cabrerarodrigo/log-in-formulario.git"
   },
   "keywords": [],
   "author": "cabrerarodrigo",
   "license": "ISC",
-
   "homepage": "",
   "dependencies": {
     "@faker-js/faker": "^6.0.0",
     "express": "^4.17.3",
     "express-handlebars": "^6.0.2",
+    "express-session": "^1.17.2",
     "firebase-admin": "^10.0.2",
     "normalizr": "^3.6.2",
     "socket.io": "^4.4.1"

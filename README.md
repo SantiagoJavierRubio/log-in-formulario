@@ -5,7 +5,7 @@ Desafío entregable para el curso de backend de Coderhouse
 
 ```bash
 # Clonar el repositorio
-$ git clone https://github.com/cabrerarodrigo/mocks_y_normalizacion.git
+$ git clone https://github.com/cabrerarodrigo/log-in-formulario.git
 
 # Instalar dependencias
 $ npm install
