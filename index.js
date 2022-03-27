@@ -4,6 +4,7 @@ import { Server as HttpServer} from 'http'
 import { Server as IOServer } from 'socket.io'
 import { engine } from 'express-handlebars'
 import session from 'express-session'
+import MongoStore  from 'connect-mongo'
 import apiRoutes from './rutas/api.js'
 
 const app = express()
@@ -13,11 +14,20 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('./public'))
 
-// Session setup
 app.use(session({
+    store: MongoStore.create({
+        mongoUrl: 'mongodb://RodrigoCabrera:Hockeyrestapuma1@cluster0-shard-00-00.obp4y.mongodb.net:27017,cluster0-shard-00-01.obp4y.mongodb.net:27017,cluster0-shard-00-02.obp4y.mongodb.net:27017/coderhouse?ssl=true&replicaSet=atlas-9tzx2f-shard-0&authSource=admin&retryWrites=true&w=majority',
+        mongoOptions: {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }
+    }),
     secret: 'eunsecreto',
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 60*1000
+    }
 }))
 
 // Workaround porque no funcionaba __dirname al trabajar en módulos (creo)
